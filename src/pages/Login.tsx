@@ -10,7 +10,7 @@ import {
   Switcher,
   Title,
   Wrapper,
-} from "../components/auth-component";
+} from "../components/AuthComponent";
 import GithubButton from "../components/GithubButton";
 
 type Form = {
