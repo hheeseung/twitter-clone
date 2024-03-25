@@ -8,6 +8,7 @@ import { createGlobalStyle } from "styled-components";
 import reset from "styled-reset";
 import { useEffect, useState } from "react";
 import LoadingScreen from "./components/LoadingScreen";
+import { auth } from "./service/firebase";
 
 const router = createBrowserRouter([
   {
@@ -49,7 +50,10 @@ const GlobalStyles = createGlobalStyle`
 function App() {
   const [isLoading, setIsLoading] = useState(true);
   const init = async () => {
-    // wait for firebase
+    // authStateReady()
+    // 최초 인증 상태가 완료될 때 실행되는 Promise 리턴
+    // firebase가 쿠키, 토큰을 읽고 백엔드와 소통해 로그인 여부를 확인하는 동안 기다림
+    await auth.authStateReady();
     setIsLoading(false);
   };
 
