@@ -1,4 +1,11 @@
-import { collection, getDocs, orderBy, query } from "firebase/firestore";
+import {
+  Unsubscribe,
+  collection,
+  limit,
+  onSnapshot,
+  orderBy,
+  query,
+} from "firebase/firestore";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { db } from "../service/firebase";
@@ -17,21 +24,27 @@ const Wrapper = styled.div``;
 
 export default function Timeline() {
   const [tweets, setTweets] = useState<ITweet[]>();
-  const fetchTweets = async () => {
-    const tweetsQuery = query(
-      collection(db, "tweets"),
-      orderBy("createdAt", "desc")
-    );
-    const snapshot = await getDocs(tweetsQuery);
-    const tweets = snapshot.docs.map((doc) => {
-      const { tweet, createdAt, userId, username, photo } = doc.data();
-      return { tweet, createdAt, userId, username, photo, id: doc.id };
-    });
-    setTweets(tweets);
-  };
 
   useEffect(() => {
+    let unsubscribe: Unsubscribe | null = null;
+    const fetchTweets = async () => {
+      const tweetsQuery = query(
+        collection(db, "tweets"),
+        orderBy("createdAt", "desc"),
+        limit(25)
+      );
+      unsubscribe = await onSnapshot(tweetsQuery, (snapshot) => {
+        const tweets = snapshot.docs.map((doc) => {
+          const { tweet, createdAt, userId, username, photo } = doc.data();
+          return { tweet, createdAt, userId, username, photo, id: doc.id };
+        });
+        setTweets(tweets);
+      });
+    };
     fetchTweets();
+    return () => {
+      unsubscribe && unsubscribe();
+    };
   }, []);
 
   return (
